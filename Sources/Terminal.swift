@@ -23,9 +23,7 @@ class Terminal {
         }
 
         Self.execute(command: .enterAlternateScreen)
-        fflush(stdout)
         Self.execute(command: .clearScreen)
-        fflush(stdout)
         Self.execute(command: .hideCursor)
         fflush(stdout)
     }
@@ -43,7 +41,6 @@ class Terminal {
 
     deinit {
         Self.execute(command: .showCursor)
-        fflush(stdout)
         Self.execute(command: .leaveAlternateScreen)
         fflush(stdout)
 
