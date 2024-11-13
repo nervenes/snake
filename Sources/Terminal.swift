@@ -1,6 +1,6 @@
 import Foundation
 
-class Terminal {
+struct Terminal {
     typealias Size = (height: Int, width: Int)
     typealias Position = (x: Int, y: Int)
 
@@ -8,7 +8,9 @@ class Terminal {
 
     init() {
         let size = Terminal.getSize()
-        buffer = Array(repeating: Array(repeating: " ", count: size.width), count: size.height)
+        buffer = Array(
+            repeating: Array(repeating: " ", count: size.width),
+            count: size.height)
 
         var oldt = termios()
         tcgetattr(STDIN_FILENO, &oldt)
@@ -28,18 +30,18 @@ class Terminal {
         fflush(stdout)
     }
 
-    func draw(_ char: Character, at pos: Position) {
+    mutating func draw(_ char: Character, at pos: Position) {
         buffer[pos.y][pos.x] = char
         Self.execute(command: ANSIEscapeCode.moveCursor(x: pos.x, y: pos.y))
         fflush(stdout)
         print(char, terminator: "")
     }
 
-    func clear(at pos: Position) {
+    mutating func clear(at pos: Position) {
         draw(" ", at: pos)
     }
 
-    deinit {
+    static func shutdown() {
         Self.execute(command: .showCursor)
         Self.execute(command: .leaveAlternateScreen)
         fflush(stdout)
@@ -48,6 +50,8 @@ class Terminal {
         tcgetattr(STDIN_FILENO, &term)
         term.c_lflag |= (UInt(ICANON) | UInt(ECHO))
         tcsetattr(STDIN_FILENO, TCSANOW, &term)
+
+        exit(0)
     }
 
     static func getSize() -> Size {
